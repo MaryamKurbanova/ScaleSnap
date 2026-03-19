@@ -93,10 +93,11 @@
             <label class="full">
               Anchor object
               <select id="anchorSelect">
-                <option value="credit_card">Credit card</option>
-                <option value="soda_can" selected>Soda can</option>
-                <option value="gallon_jug">Gallon jug</option>
-                <option value="doorway">Standard doorway</option>
+                <option value="standard_credit_card">Standard Credit Card</option>
+                <option value="standard_soda_can_12oz" selected>Standard Soda Can (12oz)</option>
+                <option value="macbook_air_13">13&quot; MacBook Air</option>
+                <option value="milk_gallon_us">Milk Gallon (US)</option>
+                <option value="standard_interior_door">Standard Interior Door</option>
               </select>
             </label>
           </form>
@@ -110,34 +111,54 @@
             <p id="customMetric"></p>
             <p id="anchorMetric"></p>
           </div>
-        </div>
 
-        <div class="card stage-card">
-          <div class="stage-head">
-            <h3>3D Stage</h3>
-            <span id="statusPill" class="pill">Ready</span>
-          </div>
-          <div class="stage" aria-live="polite">
-            <div class="grid" aria-hidden="true"></div>
-            <div class="box-group">
-              <figure>
-                <div id="customBox" class="iso-box custom" aria-label="Custom object">
-                  <span class="face front"></span>
-                  <span class="face side"></span>
-                  <span class="face top"></span>
-                </div>
-                <figcaption>Your item</figcaption>
-              </figure>
-              <figure>
-                <div id="anchorBox" class="iso-box anchor" aria-label="Anchor object">
-                  <span class="face front"></span>
-                  <span class="face side"></span>
-                  <span class="face top"></span>
-                </div>
-                <figcaption id="anchorCaption">Soda can</figcaption>
-              </figure>
+          <div class="rotation-panel">
+            <div class="rotation-head">
+              <h3>Rotation Controls</h3>
+              <button id="resetRotationButton" class="btn btn-secondary" type="button">Reset Rotation</button>
+            </div>
+            <label class="full">
+              Rotate target
+              <select id="rotateTarget">
+                <option value="custom">Bounding Box</option>
+                <option value="anchor">Anchor Object</option>
+              </select>
+            </label>
+            <div class="rotation-grid">
+              <label>
+                Rotate X
+                <input id="rotateX" type="range" min="-180" max="180" value="0" />
+                <span id="rotateXValue" class="range-value">0°</span>
+              </label>
+              <label>
+                Rotate Y
+                <input id="rotateY" type="range" min="-180" max="180" value="0" />
+                <span id="rotateYValue" class="range-value">0°</span>
+              </label>
+              <label>
+                Rotate Z
+                <input id="rotateZ" type="range" min="-180" max="180" value="0" />
+                <span id="rotateZValue" class="range-value">0°</span>
+              </label>
             </div>
           </div>
+        </div>
+
+        <div class="card stage-card" id="stageCard">
+          <div class="stage-head">
+            <h3>3D Stage</h3>
+            <div class="stage-head-actions">
+              <button id="zoomOutButton" class="btn btn-secondary" type="button">-</button>
+              <button id="zoomInButton" class="btn btn-secondary" type="button">+</button>
+              <button id="expandStageButton" class="btn btn-secondary" type="button">Expand</button>
+              <button id="collapseStageButton" class="btn btn-secondary hidden-control" type="button">Close</button>
+              <span id="statusPill" class="pill">Ready</span>
+            </div>
+          </div>
+          <div id="stageCanvas" class="stage" aria-live="polite"></div>
+          <p class="stage-hint">
+            Drag to orbit, scroll to zoom, and use rotation controls to spin the anchor or bounding box.
+          </p>
         </div>
       </section>
 
@@ -209,6 +230,6 @@
       </div>
     </div>
 
-    <script src="./script.js"></script>
+    <script type="module" src="./script.js"></script>
   </body>
 </html>
