@@ -1,4 +1,143 @@
+# ScaleSnap - Product Master List
 
--ScaleSnap is an instant 3D visualization tool that eliminates shopping guesswork by placing a digital model
-of any product's dimensions side-by-side with familiar everyday objects like a soda can or an iPhone.
+ScaleSnap is a high-precision 3D visualization platform built to remove the "size guessing game" for online shopping.
+It gives both consumers and businesses a way to compare real-world dimensions using familiar household anchors.
 
+## 1) Product Environments
+
+### A) Consumer Utility Portal
+- **Who it serves:** Individual shoppers
+- **Core action:** Enter custom dimensions and render a 3D box in a comparison stage
+- **Anchors:** Everyday objects (for example: soda can, gallon jug, credit card, standard doorway)
+- **Pricing:** $10.99/month
+- **Trial:** First 3 renders free, paywall on 4th attempt
+
+### B) Professional Business Suite
+- **Who it serves:** E-commerce brands, sellers, and product teams
+- **Core action:** Create permanent, locked "Visual Dimension Links" for products
+- **Public experience:** Customers open a shareable URL and view a tamper-proof 3D comparison scene
+- **Pricing:** $29.99/month
+- **Value proposition:** Higher buyer confidence, fewer returns, stronger digital showroom experience
+
+## 2) Core Website Modules (Cursor-Ready Master List)
+
+### 2.1 Compare-to-Reality Engine
+**Purpose**
+- Render a precise 3D bounding box from user-entered dimensions
+- Place the box next to selected anchors at true proportional scale
+
+**Functional Requirements**
+- Input fields for width, height, depth (with unit support and conversion)
+- Real-time 3D updates without page reloads
+- Anchor add/remove/swap controls
+- Camera controls (orbit, zoom, pan)
+- Optional "reset view" and "fit all objects" actions
+- Visual labels for dimensions
+
+**Implementation Notes**
+- Frontend 3D layer (for example: Three.js or React Three Fiber)
+- Shared scale normalization utility
+- Validation pipeline for impossible/invalid dimensions
+
+---
+
+### 2.2 Secure-Link Vault
+**Purpose**
+- Store business product dimensions and generate immutable public links
+
+**Functional Requirements**
+- Authenticated business dashboard for creating product entries
+- Server-side generation of unique URL tokens/IDs
+- Non-editable public viewer route for each saved item
+- Version-safe records (avoid accidental mutation of published links)
+- Link metadata (created date, creator, product name, dimensions, anchor preset)
+
+**Implementation Notes**
+- Database tables for businesses, products, dimension snapshots, and public links
+- Signed or random high-entropy IDs for link security
+- Optional audit trail for updates/new versions
+
+---
+
+### 2.3 Anchor Gallery
+**Purpose**
+- Provide a curated library of real-world reference objects by size category
+
+**Functional Requirements**
+- Categories: Small, Medium, Large
+- Search and quick-select UI in the 3D stage
+- Standardized metadata per anchor:
+  - Display name
+  - Canonical dimensions
+  - Unit standard
+  - 3D asset path
+  - Category tags
+- Preset bundles (for example "kitchen set", "office set")
+
+**Implementation Notes**
+- Asset manifest JSON for anchor definitions
+- CDN/static asset pipeline for optimized 3D models
+- Consistent object origin and scale rules for all assets
+
+---
+
+### 2.4 Usage Monitor (Trial + Paywall Trigger)
+**Purpose**
+- Enforce "3 Free Tries" for guests and business prospects
+- Trigger Stripe checkout on the 4th attempt
+
+**Functional Requirements**
+- Track render attempts by session/user/account
+- Handle both anonymous and authenticated users
+- Graceful upgrade prompts at trial boundary
+- Stripe plan mapping:
+  - Consumer plan: $10.99/month
+  - Business plan: $29.99/month
+- Webhook handling for subscription state sync
+
+**Implementation Notes**
+- Server-side counters to avoid client tampering
+- Idempotent billing and webhook processing
+- Trial status endpoint for UI gating logic
+
+## 3) Suggested Data Model (MVP)
+
+- `users` (id, role, email, auth_provider, created_at)
+- `subscriptions` (user_id, tier, stripe_customer_id, stripe_subscription_id, status, renews_at)
+- `usage_events` (id, user_id nullable, session_id, event_type, created_at)
+- `anchors` (id, name, category, width, height, depth, unit, asset_url, is_active)
+- `products` (id, business_user_id, name, sku, created_at)
+- `dimension_snapshots` (id, product_id, width, height, depth, unit, locked_hash, created_at)
+- `visual_links` (id, product_id, snapshot_id, public_token, is_active, created_at)
+
+## 4) Suggested Route Map (MVP)
+
+- `/` - marketing + product explainer
+- `/consumer` - Consumer Utility Portal
+- `/business` - Business Suite landing + onboarding
+- `/dashboard/products` - business product management
+- `/v/:publicToken` - locked public Visual Dimension Link page
+- `/pricing` - tier comparison and CTA
+
+### API Endpoints (example)
+- `POST /api/render/attempt` - increment usage attempt
+- `GET /api/trial/status` - remaining free tries
+- `GET /api/anchors` - fetch anchor gallery metadata
+- `POST /api/business/products` - create product
+- `POST /api/business/products/:id/publish-link` - create immutable public link
+- `POST /api/billing/create-checkout-session` - Stripe checkout
+- `POST /api/billing/webhook` - Stripe webhook receiver
+
+## 5) Acceptance Criteria Checklist
+
+- [ ] 3D stage maintains accurate relative scale between custom box and anchors
+- [ ] Anchor swaps are instant and maintain scene scale integrity
+- [ ] 3 free render attempts are enforced for guests and prospects
+- [ ] 4th attempt reliably routes to Stripe paywall
+- [ ] Business users can create a locked Visual Dimension Link
+- [ ] Public link view is read-only and cannot mutate stored dimensions
+- [ ] Subscription status is synced from Stripe webhooks
+
+## 6) Positioning Statement
+
+ScaleSnap brings physical scale to digital commerce. By pairing high-precision 3D dimension rendering with familiar anchors and secure share links, it turns abstract measurements into immediate visual trust.
