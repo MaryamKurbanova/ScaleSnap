@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScaleSnap | Precision Size Visualization</title>
+    <meta
+      name="description"
+      content="ScaleSnap turns dimensions into clear visual confidence with precision comparison tools for shoppers and businesses."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="bg-glow bg-glow-one" aria-hidden="true"></div>
+    <div class="bg-glow bg-glow-two" aria-hidden="true"></div>
+
+    <header class="site-header container">
+      <a class="brand" href="#">
+        <span class="brand-mark">S</span>
+        <span>ScaleSnap</span>
+      </a>
+      <nav class="site-nav">
+        <a href="#engine">Engine</a>
+        <a href="#modules">Modules</a>
+        <a href="#pricing">Pricing</a>
+      </nav>
+      <a class="btn btn-ghost" href="#pricing">Start Trial</a>
+    </header>
+
+    <main>
+      <section class="hero container">
+        <div class="hero-copy">
+          <p class="eyebrow">High-precision 3D scale intelligence</p>
+          <h1>Bring physical scale to digital shopping.</h1>
+          <p class="hero-text">
+            ScaleSnap eliminates the size guessing game by comparing exact dimensions
+            against familiar real-world anchors.
+          </p>
+          <div class="hero-actions">
+            <a href="#engine" class="btn btn-primary">Try Live Demo</a>
+            <a href="#pricing" class="btn btn-secondary">View Plans</a>
+          </div>
+        </div>
+
+        <aside class="hero-panel card">
+          <p class="panel-label">Live usage monitor</p>
+          <p class="panel-value" id="triesLeftLabel">3 free tries left</p>
+          <p class="panel-note">
+            The 4th render triggers secure Stripe checkout for your selected plan.
+          </p>
+          <div class="panel-prices">
+            <div>
+              <p>Consumer</p>
+              <strong>$10.99/mo</strong>
+            </div>
+            <div>
+              <p>Business</p>
+              <strong>$29.99/mo</strong>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="engine" class="engine container">
+        <div class="card engine-controls">
+          <div class="card-title-row">
+            <h2>Compare-to-Reality Engine</h2>
+            <span class="chip">Real-time</span>
+          </div>
+          <p class="subtle">
+            Enter dimensions and compare your item against everyday anchors.
+          </p>
+
+          <form id="dimensionForm" class="dimension-grid">
+            <label>
+              Width (cm)
+              <input id="widthInput" type="number" value="45" min="1" step="0.1" />
+            </label>
+            <label>
+              Height (cm)
+              <input id="heightInput" type="number" value="30" min="1" step="0.1" />
+            </label>
+            <label>
+              Depth (cm)
+              <input id="depthInput" type="number" value="20" min="1" step="0.1" />
+            </label>
+            <label class="full">
+              Anchor object
+              <select id="anchorSelect">
+                <option value="credit_card">Credit card</option>
+                <option value="soda_can" selected>Soda can</option>
+                <option value="gallon_jug">Gallon jug</option>
+                <option value="doorway">Standard doorway</option>
+              </select>
+            </label>
+          </form>
+
+          <div class="engine-actions">
+            <button id="renderButton" class="btn btn-primary" type="button">Render Compare</button>
+            <button id="resetButton" class="btn btn-secondary" type="button">Reset</button>
+          </div>
+
+          <div class="metrics">
+            <p id="customMetric"></p>
+            <p id="anchorMetric"></p>
+          </div>
+        </div>
+
+        <div class="card stage-card">
+          <div class="stage-head">
+            <h3>3D Stage</h3>
+            <span id="statusPill" class="pill">Ready</span>
+          </div>
+          <div class="stage" aria-live="polite">
+            <div class="grid" aria-hidden="true"></div>
+            <div class="box-group">
+              <figure>
+                <div id="customBox" class="iso-box custom" aria-label="Custom object">
+                  <span class="face front"></span>
+                  <span class="face side"></span>
+                  <span class="face top"></span>
+                </div>
+                <figcaption>Your item</figcaption>
+              </figure>
+              <figure>
+                <div id="anchorBox" class="iso-box anchor" aria-label="Anchor object">
+                  <span class="face front"></span>
+                  <span class="face side"></span>
+                  <span class="face top"></span>
+                </div>
+                <figcaption id="anchorCaption">Soda can</figcaption>
+              </figure>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="modules" class="container modules">
+        <h2>Core platform modules</h2>
+        <div class="module-grid">
+          <article class="card">
+            <h3>Compare-to-Reality Engine</h3>
+            <p>Precision scaling of custom dimensions against known everyday anchors.</p>
+          </article>
+          <article class="card">
+            <h3>Secure-Link Vault</h3>
+            <p>Generate permanent, tamper-proof Visual Dimension Links for products.</p>
+          </article>
+          <article class="card">
+            <h3>Anchor Gallery</h3>
+            <p>Curated 3D reference object library across small, medium, and large scales.</p>
+          </article>
+          <article class="card">
+            <h3>Usage Monitor</h3>
+            <p>Trial control and seamless Stripe paywall trigger on the 4th usage event.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="pricing" class="container pricing">
+        <h2>Simple plans</h2>
+        <div class="pricing-grid">
+          <article class="card pricing-card">
+            <p class="plan-name">Consumer Utility Portal</p>
+            <p class="plan-price">$10.99<span>/month</span></p>
+            <ul>
+              <li>3 free renders to start</li>
+              <li>Instant custom dimension staging</li>
+              <li>Anchor comparison tools</li>
+            </ul>
+            <button class="btn btn-secondary" type="button">Choose Consumer</button>
+          </article>
+          <article class="card pricing-card featured">
+            <p class="plan-name">Professional Business Suite</p>
+            <p class="plan-price">$29.99<span>/month</span></p>
+            <ul>
+              <li>Permanent Visual Dimension Links</li>
+              <li>Tamper-proof public showcase pages</li>
+              <li>Conversion and confidence boost</li>
+            </ul>
+            <button class="btn btn-primary" type="button">Choose Business</button>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="container site-footer">
+      <p>ScaleSnap</p>
+      <p>Precision scale confidence for modern commerce.</p>
+    </footer>
+
+    <div id="paywallModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="paywallTitle">
+      <div class="modal-panel card">
+        <h3 id="paywallTitle">Free tries complete</h3>
+        <p>
+          You have used 3 free renders. Upgrade to continue comparing dimensions with
+          full precision.
+        </p>
+        <div class="modal-actions">
+          <button class="btn btn-primary" type="button">Continue to Stripe</button>
+          <button id="closeModalButton" class="btn btn-secondary" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
