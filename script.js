@@ -1,5 +1,4 @@
 import * as THREE from "https://unpkg.com/three@0.163.0/build/three.module.js";
-import { OrbitControls } from "https://unpkg.com/three@0.163.0/examples/jsm/controls/OrbitControls.js";
 
 const TRIAL_LIMIT = 3;
 const TRIAL_STORAGE_KEY = "scalesnap_trial_count";
@@ -75,7 +74,7 @@ const rotationState = {
 let scene;
 let camera;
 let renderer;
-let controls;
+let cameraController;
 let stageGroup;
 let customObject;
 let anchorObject;
@@ -128,6 +127,10 @@ function asNumber(inputElement, fallback) {
 
 function degToRad(value) {
   return (value * Math.PI) / 180;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }
 
 function flashStatus(message, variant = "ok") {
@@ -404,8 +407,7 @@ function renderScene() {
   applyObjectRotations();
 
   const focusHeight = Math.max(customScaled.height, anchorScaled.height) * 0.48;
-  controls.target.set(0, focusHeight, 0);
-  controls.update();
+  setCameraTarget(0, focusHeight, 0);
 
   customMetric.textContent = `Bounding box: ${custom.width.toFixed(1)} x ${custom.height.toFixed(1)} x ${custom.depth.toFixed(1)} cm`;
   anchorMetric.textContent = `${anchor.name}: ${anchor.width.toFixed(2)} x ${anchor.height.toFixed(2)} x ${anchor.depth.toFixed(2)} cm`;
@@ -423,10 +425,15 @@ function resizeRenderer() {
 }
 
 function zoomCamera(factor) {
-  const target = controls.target.clone();
-  const offset = camera.position.clone().sub(target).multiplyScalar(factor);
-  camera.position.copy(target.add(offset));
-  controls.update();
+  if (!cameraController) {
+    return;
+  }
+  cameraController.distance = clamp(
+    cameraController.distance * factor,
+    cameraController.minDistance,
+    cameraController.maxDistance,
+  );
+  updateCameraFromController();
 }
 
 function setStageExpanded(expanded) {
@@ -456,17 +463,17 @@ function initThreeStage() {
   camera = new THREE.PerspectiveCamera(46, 1, 0.01, 80);
   camera.position.set(4.6, 3.4, 5.1);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  } catch {
+    stageCanvas.innerHTML =
+      "<p style='padding:1rem;color:#ffd796;'>3D stage failed to initialize. Please use a modern browser with WebGL enabled.</p>";
+    flashStatus("3D unavailable", "warn");
+    return;
+  }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x000000, 0);
   stageCanvas.appendChild(renderer.domElement);
-
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.enablePan = true;
-  controls.minDistance = 1.4;
-  controls.maxDistance = 24;
-  controls.target.set(0, 1, 0);
 
   const ambient = new THREE.AmbientLight(0xffffff, 0.72);
   scene.add(ambient);
@@ -493,14 +500,116 @@ function initThreeStage() {
   stageGroup = new THREE.Group();
   scene.add(stageGroup);
 
+  initCameraController();
   resizeRenderer();
   window.addEventListener("resize", resizeRenderer);
   new ResizeObserver(resizeRenderer).observe(stageCanvas);
 
   renderer.setAnimationLoop(() => {
-    controls.update();
     renderer.render(scene, camera);
   });
+}
+
+function updateCameraFromController() {
+  if (!cameraController) {
+    return;
+  }
+  cameraController.polar = clamp(
+    cameraController.polar,
+    cameraController.minPolar,
+    cameraController.maxPolar,
+  );
+  cameraController.distance = clamp(
+    cameraController.distance,
+    cameraController.minDistance,
+    cameraController.maxDistance,
+  );
+
+  const spherical = new THREE.Spherical(
+    cameraController.distance,
+    cameraController.polar,
+    cameraController.azimuth,
+  );
+  const offset = new THREE.Vector3().setFromSpherical(spherical);
+  camera.position.copy(cameraController.target.clone().add(offset));
+  camera.lookAt(cameraController.target);
+}
+
+function setCameraTarget(x, y, z) {
+  if (!cameraController) {
+    return;
+  }
+  cameraController.target.set(x, y, z);
+  updateCameraFromController();
+}
+
+function initCameraController() {
+  const target = new THREE.Vector3(0, 1, 0);
+  const offset = camera.position.clone().sub(target);
+  const spherical = new THREE.Spherical().setFromVector3(offset);
+
+  cameraController = {
+    target,
+    distance: spherical.radius,
+    azimuth: spherical.theta,
+    polar: spherical.phi,
+    minDistance: 1.4,
+    maxDistance: 24,
+    minPolar: 0.2,
+    maxPolar: Math.PI - 0.2,
+    dragging: false,
+    pointerId: null,
+    lastX: 0,
+    lastY: 0,
+  };
+
+  const canvas = renderer.domElement;
+  canvas.style.touchAction = "none";
+
+  canvas.addEventListener("pointerdown", (event) => {
+    cameraController.dragging = true;
+    cameraController.pointerId = event.pointerId;
+    cameraController.lastX = event.clientX;
+    cameraController.lastY = event.clientY;
+    canvas.setPointerCapture(event.pointerId);
+  });
+
+  canvas.addEventListener("pointermove", (event) => {
+    if (!cameraController.dragging || event.pointerId !== cameraController.pointerId) {
+      return;
+    }
+    const deltaX = event.clientX - cameraController.lastX;
+    const deltaY = event.clientY - cameraController.lastY;
+    cameraController.lastX = event.clientX;
+    cameraController.lastY = event.clientY;
+
+    cameraController.azimuth -= deltaX * 0.0075;
+    cameraController.polar -= deltaY * 0.0065;
+    updateCameraFromController();
+  });
+
+  const stopDragging = (event) => {
+    if (event.pointerId !== cameraController.pointerId) {
+      return;
+    }
+    cameraController.dragging = false;
+    cameraController.pointerId = null;
+    canvas.releasePointerCapture(event.pointerId);
+  };
+
+  canvas.addEventListener("pointerup", stopDragging);
+  canvas.addEventListener("pointercancel", stopDragging);
+  canvas.addEventListener(
+    "wheel",
+    (event) => {
+      event.preventDefault();
+      const zoomFactor = event.deltaY > 0 ? 1.08 : 0.92;
+      zoomCamera(zoomFactor);
+    },
+    { passive: false },
+  );
+
+  updateCameraFromController();
 }
 
 renderButton.addEventListener("click", () => {
@@ -574,4 +683,6 @@ paywallModal.addEventListener("click", (event) => {
 initThreeStage();
 updateTrialUI();
 setRotationSliderValues("custom");
-renderScene();
+if (renderer) {
+  renderScene();
+}
