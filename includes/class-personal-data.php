@@ -160,7 +160,10 @@ class GF_Personal_Data {
 						'tooltip'     => gform_tooltip( 'personal_data_enable', null, true ),
 						'disabled'    => empty( $identification_field_choices ),
 						'description' => empty( $identification_field_choices )
-							? esc_html__( 'You must add an email address field to the form in order to enable this setting.', 'gravityforms' )
+							? sprintf(
+								'<div class="alert error"><p>%s</p></div>',
+								esc_html__( 'You must add an email address field to the form in order to enable this setting.', 'gravityforms' )
+							)
 							: '',
 					),
 					array(
@@ -588,6 +591,16 @@ class GF_Personal_Data {
 				'fields'         => self::settings_fields( $form_id ),
 				'initial_values' => rgar( $form, 'personalData' ),
 				'save_callback'  => array( 'GF_Personal_Data', 'process_form_settings' ),
+				'before_fields'  => function() use ( $form ) {
+					if ( ! empty( self::get_identification_fields_choices( $form ) ) ) {
+						return;
+					}
+
+					printf(
+						'<div class="alert error"><p>%s</p></div>',
+						esc_html__( 'You must add an email address field to the form in order to enable this setting.', 'gravityforms' )
+					);
+				},
 				'after_fields'   => function() {
 					?>
 					<script>
