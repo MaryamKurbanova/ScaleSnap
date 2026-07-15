@@ -154,11 +154,14 @@ class GF_Personal_Data {
 				'title'  => esc_html__( 'Exporting and Erasing Data', 'gravityforms' ),
 				'fields' => array(
 					array(
-						'name'     => 'exportingAndErasing[enabled]',
-						'type'     => 'toggle',
-						'label'    => esc_html__( 'Enable integration with the WordPress tools for exporting and erasing personal data.', 'gravityforms' ),
-						'tooltip'  => gform_tooltip( 'personal_data_enable', null, true ),
-						'disabled' => empty( $identification_field_choices ),
+						'name'        => 'exportingAndErasing[enabled]',
+						'type'        => 'toggle',
+						'label'       => esc_html__( 'Enable integration with the WordPress tools for exporting and erasing personal data.', 'gravityforms' ),
+						'tooltip'     => gform_tooltip( 'personal_data_enable', null, true ),
+						'disabled'    => empty( $identification_field_choices ),
+						'description' => empty( $identification_field_choices )
+							? esc_html__( 'You must add an email address field to the form in order to enable this setting.', 'gravityforms' )
+							: '',
 					),
 					array(
 						'name'       => 'exportingAndErasing[identificationField]',
@@ -576,9 +579,6 @@ class GF_Personal_Data {
 		$form_id = absint( rgget( 'id' ) );
 		$form    = self::get_form( $form_id );
 
-		// Identification field choices; empty when the form has no email (or filtered) identifier.
-		$identification_field_choices = self::get_identification_fields_choices( $form );
-
 		$renderer = new Settings(
 			array(
 				'header'         => array(
@@ -588,17 +588,6 @@ class GF_Personal_Data {
 				'fields'         => self::settings_fields( $form_id ),
 				'initial_values' => rgar( $form, 'personalData' ),
 				'save_callback'  => array( 'GF_Personal_Data', 'process_form_settings' ),
-				// Render the missing-email notice at the top of the Personal Data settings page.
-				'before_fields'  => function() use ( $identification_field_choices ) {
-					if ( ! empty( $identification_field_choices ) ) {
-						return;
-					}
-
-					printf(
-						'<div class="alert error" role="alert">%s</div>',
-						esc_html__( 'You must add an email address field to the form in order to enable this setting.', 'gravityforms' )
-					);
-				},
 				'after_fields'   => function() {
 					?>
 					<script>
